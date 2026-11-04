@@ -1,0 +1,49 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_24-5d053023bd358de3bed9cc41b3cf0d13c9a8cfd3",
+  "solcVersion": "0.8.24",
+  "solcLongVersion": "0.8.24+commit.e11b9ed9",
+  "compilerType": "solc",
+  "toolVersions": {
+    "hardhat": "3.21.2"
+  },
+  "userSourceNameMap": {
+    "contracts/CredentialRegistry.sol": "project/contracts/CredentialRegistry.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "shanghai",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode.linkReferences",
+            "evm.bytecode.object",
+            "evm.bytecode.opcodes",
+            "evm.bytecode.sourceMap",
+            "evm.deployedBytecode.immutableReferences",
+            "evm.deployedBytecode.linkReferences",
+            "evm.deployedBytecode.object",
+            "evm.deployedBytecode.opcodes",
+            "evm.deployedBytecode.sourceMap",
+            "evm.methodIdentifiers"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/CredentialRegistry.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.24;\r\n\r\ncontract CredentialRegistry {\r\n    \r\n    // The account that deploys this contract (The Regulatory Authority)\r\n    address public admin;\r\n\r\n    // Structure defining a University\r\n    struct Institution {\r\n        string name;\r\n        bool isAuthorized;\r\n        bool exists;\r\n    }\r\n\r\n    // Structure defining an Academic Credential\r\n    struct Credential {\r\n        string documentHash;      // The SHA-256 hash of the PDF\r\n        address issuingInstitution;\r\n        uint256 issuanceTimestamp;\r\n        bool isRevoked;\r\n        bool exists;\r\n    }\r\n\r\n    // Database mappings\r\n    mapping(address => Institution) public institutions;\r\n    mapping(string => Credential) public credentials;\r\n\r\n    // Events\r\n    event InstitutionRegistered(address indexed institutionAddress, string name);\r\n    event InstitutionSuspended(address indexed institutionAddress);\r\n    event CredentialIssued(string indexed credentialId, string documentHash, address indexed issuingInstitution);\r\n    event CredentialRevoked(string indexed credentialId);\r\n\r\n    // Modifier to restrict functions to only the Admin\r\n    modifier onlyAdmin() {\r\n        require(msg.sender == admin, \"Only the network admin can perform this action\");\r\n        _;\r\n    }\r\n\r\n    // Modifier to restrict functions to only authorized universities\r\n    modifier onlyAuthorizedInstitution() {\r\n        require(institutions[msg.sender].isAuthorized, \"Only authorized institutions can issue credentials\");\r\n        _;\r\n    }\r\n\r\n    // When the contract is first deployed, set the deployer as the admin\r\n    constructor() {\r\n        admin = msg.sender;\r\n    }\r\n\r\n    // --- GOVERNANCE FUNCTIONS ---\r\n\r\n    function registerInstitution(address _institutionAddress, string memory _name) public onlyAdmin {\r\n        require(!institutions[_institutionAddress].exists, \"Institution is already registered\");\r\n        \r\n        institutions[_institutionAddress] = Institution({\r\n            name: _name,\r\n            isAuthorized: true,\r\n            exists: true\r\n        });\r\n\r\n        emit InstitutionRegistered(_institutionAddress, _name);\r\n    }\r\n\r\n    function suspendInstitution(address _institutionAddress) public onlyAdmin {\r\n        require(institutions[_institutionAddress].exists, \"Institution does not exist\");\r\n        institutions[_institutionAddress].isAuthorized = false;\r\n        emit InstitutionSuspended(_institutionAddress);\r\n    }\r\n\r\n    // --- CREDENTIAL FUNCTIONS ---\r\n\r\n    function issueCredential(string memory _credentialId, string memory _documentHash) public onlyAuthorizedInstitution {\r\n        require(!credentials[_credentialId].exists, \"A credential with this ID already exists\");\r\n\r\n        credentials[_credentialId] = Credential({\r\n            documentHash: _documentHash,\r\n            issuingInstitution: msg.sender,\r\n            issuanceTimestamp: block.timestamp,\r\n            isRevoked: false,\r\n            exists: true\r\n        });\r\n\r\n        emit CredentialIssued(_credentialId, _documentHash, msg.sender);\r\n    }\r\n\r\n    function revokeCredential(string memory _credentialId) public {\r\n        require(credentials[_credentialId].exists, \"Credential does not exist\");\r\n        require(credentials[_credentialId].issuingInstitution == msg.sender, \"Only the issuing institution can revoke this credential\");\r\n        require(!credentials[_credentialId].isRevoked, \"Credential is already revoked\");\r\n\r\n        credentials[_credentialId].isRevoked = true;\r\n        emit CredentialRevoked(_credentialId);\r\n    }\r\n\r\n    // --- VERIFICATION FUNCTIONS ---\r\n\r\n    function verifyCredential(string memory _credentialId) public view returns (\r\n        string memory documentHash,\r\n        address issuingInstitution,\r\n        uint256 issuanceTimestamp,\r\n        bool isRevoked,\r\n        bool exists\r\n    ) {\r\n        Credential memory cred = credentials[_credentialId];\r\n        return (\r\n            cred.documentHash,\r\n            cred.issuingInstitution,\r\n            cred.issuanceTimestamp,\r\n            cred.isRevoked,\r\n            cred.exists\r\n        );\r\n    }\r\n}"
+      }
+    }
+  }
+}

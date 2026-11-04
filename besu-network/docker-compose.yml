@@ -1,0 +1,116 @@
+x-besu-def: &besu-def
+  image: hyperledger/besu:latest
+  restart: "on-failure"
+  volumes:
+    - ./network/genesis.json:/network/genesis.json
+    - ./network/static-nodes.json:/opt/besu/data/static-nodes.json
+    - ./network/permissions_config.toml:/network/permissions_config.toml
+  networks:
+    besu-network: {}
+  command: 
+    - --network-id=1337
+    - --genesis-file=/network/genesis.json
+    - --data-path=/opt/besu/data
+    - --min-gas-price=0
+    - --permissions-nodes-config-file-enabled=true
+    - --permissions-nodes-config-file=/network/permissions_config.toml
+
+services:
+  validator1:
+    <<: *besu-def
+    container_name: validator1
+    volumes:
+      - ./network/keys/validator1:/opt/besu/keys
+      - ./network/genesis.json:/network/genesis.json
+      - ./network/static-nodes.json:/opt/besu/data/static-nodes.json
+      - ./network/permissions_config.toml:/network/permissions_config.toml
+    networks:
+      besu-network:
+        ipv4_address: 172.31.240.11
+    command: >
+      --network-id=1337 --genesis-file=/network/genesis.json --data-path=/opt/besu/data 
+      --min-gas-price=0 --permissions-nodes-config-file-enabled=true 
+      --permissions-nodes-config-file=/network/permissions_config.toml 
+      --node-private-key-file=/opt/besu/keys/key --p2p-host=0.0.0.0 --p2p-port=30303
+
+  validator2:
+    <<: *besu-def
+    container_name: validator2
+    volumes:
+      - ./network/keys/validator2:/opt/besu/keys
+      - ./network/genesis.json:/network/genesis.json
+      - ./network/static-nodes.json:/opt/besu/data/static-nodes.json
+      - ./network/permissions_config.toml:/network/permissions_config.toml
+    networks:
+      besu-network:
+        ipv4_address: 172.31.240.12
+    command: >
+      --network-id=1337 --genesis-file=/network/genesis.json --data-path=/opt/besu/data 
+      --min-gas-price=0 --permissions-nodes-config-file-enabled=true 
+      --permissions-nodes-config-file=/network/permissions_config.toml 
+      --node-private-key-file=/opt/besu/keys/key --p2p-host=0.0.0.0 --p2p-port=30303
+
+  validator3:
+    <<: *besu-def
+    container_name: validator3
+    volumes:
+      - ./network/keys/validator3:/opt/besu/keys
+      - ./network/genesis.json:/network/genesis.json
+      - ./network/static-nodes.json:/opt/besu/data/static-nodes.json
+      - ./network/permissions_config.toml:/network/permissions_config.toml
+    networks:
+      besu-network:
+        ipv4_address: 172.31.240.13
+    command: >
+      --network-id=1337 --genesis-file=/network/genesis.json --data-path=/opt/besu/data 
+      --min-gas-price=0 --permissions-nodes-config-file-enabled=true 
+      --permissions-nodes-config-file=/network/permissions_config.toml 
+      --node-private-key-file=/opt/besu/keys/key --p2p-host=0.0.0.0 --p2p-port=30303
+
+  validator4:
+    <<: *besu-def
+    container_name: validator4
+    volumes:
+      - ./network/keys/validator4:/opt/besu/keys
+      - ./network/genesis.json:/network/genesis.json
+      - ./network/static-nodes.json:/opt/besu/data/static-nodes.json
+      - ./network/permissions_config.toml:/network/permissions_config.toml
+    networks:
+      besu-network:
+        ipv4_address: 172.31.240.14
+    command: >
+      --network-id=1337 --genesis-file=/network/genesis.json --data-path=/opt/besu/data 
+      --min-gas-price=0 --permissions-nodes-config-file-enabled=true 
+      --permissions-nodes-config-file=/network/permissions_config.toml 
+      --node-private-key-file=/opt/besu/keys/key --p2p-host=0.0.0.0 --p2p-port=30303
+
+  rpcnode:
+    <<: *besu-def
+    container_name: rpcnode
+    volumes:
+      - ./network/keys/rpcnode:/opt/besu/keys
+      - ./network/genesis.json:/network/genesis.json
+      - ./network/static-nodes.json:/opt/besu/data/static-nodes.json
+      - ./network/permissions_config.toml:/network/permissions_config.toml
+    networks:
+      besu-network:
+        ipv4_address: 172.31.240.15
+    ports:
+      - "8545:8545"
+    command: >
+      --network-id=1337 --genesis-file=/network/genesis.json --data-path=/opt/besu/data 
+      --min-gas-price=0 --permissions-nodes-config-file-enabled=true 
+      --permissions-nodes-config-file=/network/permissions_config.toml 
+      --node-private-key-file=/opt/besu/keys/key --p2p-host=0.0.0.0 --p2p-port=30303
+      --rpc-http-enabled=true --rpc-http-host=0.0.0.0 --rpc-http-port=8545 
+      --rpc-http-cors-origins="*" --rpc-http-api=ETH,NET,QBFT,WEB3 --host-allowlist="*"
+    depends_on:
+      - validator1
+
+networks:
+  besu-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.240.0/24
+          gateway: 172.31.240.1

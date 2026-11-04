@@ -1,0 +1,21 @@
+{
+  "config" : {
+    "chainId" : 1337,
+    "homesteadBlock" : 0,
+    "eip150Block" : 0,
+    "eip155Block" : 0,
+    "eip158Block" : 0,
+    "byzantiumBlock" : 0,
+    "constantinopleBlock" : 0,
+    "petersburgBlock" : 0,
+    "istanbulBlock" : 0,
+    "qbft" : {
+      "blockperiodseconds" : 2,
+      "epochlength" : 30000,
+      "requesttimeoutseconds" : 4
+    }
+  },
+  "difficulty" : "0x1",
+  "gasLimit" : "0x1c9c380",
+  "extraData" : "0xf87aa00000000000000000000000000000000000000000000000000000000000000000f8549427893fadad48642531b32a9190cd9b3243349ce3945df73aa9cee1725135b6c8932f27c43e0f8b8b6e9420436cc239b896ec2ea839bb1794d7818a5fbe9394da1dc5d0dfa0ed05be2ceacdd02c6565b4793b66c080c0"
+}

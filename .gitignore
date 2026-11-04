@@ -1,0 +1,43 @@
+# Dependencies
+**/node_modules/
+
+# Environment files and secrets
+**/.env
+**/.env.*
+!**/.env.example
+**/keys/
+*.pem
+*.key
+id_rsa
+id_rsa.pub
+
+# Generated build and test output
+**/dist/
+**/dist-ssr/
+**/build/
+**/artifacts/
+**/cache/
+**/coverage/
+**/types/
+
+# Uploaded user files and logs
+/backend/uploads/*
+**/logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Local databases and runtime data
+*.sqlite
+*.sqlite3
+*.db
+
+# Local editor and operating-system files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
